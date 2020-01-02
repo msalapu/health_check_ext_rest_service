@@ -2,11 +2,15 @@ const envData = {
     // external rest services check end points
     qa: 'https://ords.beachbody.com:8443/ords/qadash/system/extrestservice/QA/?limit=500',
     uat: 'https://ords.beachbody.com:8443/ords/uatdash/system/extrestservice/UAT/?limit=500',
+
+    // path to store the external rest service health files
     masterDataPath: '/app/node/demo_version/madhu/external_rest_health_files',
     cron1: '28 * * * *',
     cron2: '58 * * * *',
     qaFileName: 'qaAPIResponse',
     uatFileName: 'uatAPIResponse',
+
+    // coach_office data processing in REPORTS and CMS
     coach_office: [
         {
             // qa3 cms details
@@ -32,7 +36,10 @@ const envData = {
             path: '/home/oracle/composite-monitor-uat',
             filename: 'coach_office_uat_report'
         }
-    ]
+    ],
+
+    // path to store the excel json data
+    pathToStoreExcelJson : '/app/node/demo_version/madhu/external_rest_health_files'
 }
 
 

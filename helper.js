@@ -16,5 +16,9 @@ module.exports = {
     getCoachOfficeData: function() {
         console.log('getCoachOfficeData: ',new Date().toUTCString());
         helperServ.helperService().getCoachOfficeData();
-    }
+    },
+
+    removeFiles: function() {
+        helperServ.helperService().removeFiles();
+     }
 }

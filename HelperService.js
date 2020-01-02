@@ -2,6 +2,7 @@
 const envData = require('./constants').envData;
 const request = require('request');
 var fs = require('fs');
+const path = require('path');
 
 class HelperService {
     constructor(envData) {
@@ -64,6 +65,19 @@ class HelperService {
             })
         }
 
+    }
+
+    removeFiles() {
+        const directory = __dirname+'/uploads/';
+        console.log('directory',directory);
+        fs.readdir(directory, (err, files) => {
+            if (err) throw err;
+            for (const file of files) {
+                fs.unlink(path.join(directory, file), err => {
+                    if (err) throw err;
+                });
+            }
+        });
     }
 
 }
