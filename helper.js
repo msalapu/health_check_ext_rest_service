@@ -1,5 +1,6 @@
 const request = require('request');
 const helperServ = require('./HelperService');
+const envData = require('./constants').envData;
 
 
 module.exports = {
@@ -20,5 +21,15 @@ module.exports = {
 
     removeFiles: function() {
         helperServ.helperService().removeFiles();
-     }
+     },
+
+     getFileData: function(fileName) {
+        console.log('getFileData:',new Date().toUTCString());
+        return helperServ.helperService().getFileData(fileName);
+    },
+
+    writeTofile: function(res) {
+        console.log('getFileData:',new Date().toUTCString());
+        return helperServ.helperService().writeToFile(res, envData.pathToStoreExcelJson, 'madhu');
+    }
 }

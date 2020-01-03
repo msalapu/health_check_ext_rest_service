@@ -23,7 +23,7 @@ class HelperService {
             await make_API_call(url).then(response => {
                 if (response) {
                     console.log('Got', fileName);
-                    writeToFile(response, envData.masterDataPath, fileName);
+                    this.writeToFile(response, envData.masterDataPath, fileName);
                 }
             }).catch(error => {
                 console.log(error)
@@ -44,7 +44,7 @@ class HelperService {
                 for (const obj of students.items) {
                     make_API_call(obj.rest_service_url).then(response => {
                         if (response) {
-                            writeToFile(response, obj.rest_service_filepath, obj.rest_service_filename);
+                            this.writeToFile(response, obj.rest_service_filepath, obj.rest_service_filename);
                         }
                     }).catch(error => {
                         console.log(error)
@@ -58,7 +58,7 @@ class HelperService {
         for (const obj of this.envData.coach_office) {
             await make_API_call(obj.url).then(response => {
                 if (response) {
-                    writeToFile(response, obj.path, obj.filename);
+                    this.writeToFile(response, obj.path, obj.filename);
                 }
             }).catch(error => {
                 console.log(error)
@@ -80,13 +80,30 @@ class HelperService {
         });
     }
 
+    getFileData(fileName) {
+        let fileToProcess = '';
+        switch (fileName) {
+            case 'excelFile': fileToProcess = 'C:/home/madhu.json';
+                break;
+            case 'qa1': fileToProcess = `C:/home/oracle/composite-monitor/atgcom_1_11000.json`;
+                break;
+            default: fileToProcess = `${envData.masterDataPath}/${envData.qaFileName}.json`;
+        }
+        console.log('Processing', fileToProcess);
+        return fs.readFileSync(fileToProcess);
+    }
+
+    writeToFile(res, location, filename) {
+        let data = JSON.stringify(res, null, 2);
+        const filepath = `${location}/${filename}.json`;
+        fs.writeFile(filepath, data, (err) => {
+            if (err) return console.log(err);
+            console.log('Data written to file: ', filepath);
+        });
+    }
+
 }
 
-module.exports = {
-    helperService: function () {
-        return new HelperService(envData);
-    }
-};
 
 async function make_API_call(url) {
     return await new Promise((resolve, reject) => {
@@ -97,11 +114,17 @@ async function make_API_call(url) {
     })
 }
 
-function writeToFile(res, location, filename) {
-    let data = JSON.stringify(res, null, 2);
-    const filepath = `${location}/${filename}.json`;
-    fs.writeFile(filepath, data, (err) => {
-        if (err) return console.log(err);
-        console.log('Data written to file: ', filepath);
-    });
-}
+// function writeToFile(res, location, filename) {
+//     let data = JSON.stringify(res, null, 2);
+//     const filepath = `${location}/${filename}.json`;
+//     fs.writeFile(filepath, data, (err) => {
+//         if (err) return console.log(err);
+//         console.log('Data written to file: ', filepath);
+//     });
+// }
+
+module.exports = {
+    helperService: function () {
+        return new HelperService(envData);
+    }
+};

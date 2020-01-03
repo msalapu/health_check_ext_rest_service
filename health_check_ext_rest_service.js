@@ -9,6 +9,26 @@ var xlsxtojson = require("xlsx-to-json-lc");
 const help = require('./helper');
 const envData = require('./constants').envData;
 
+var storage = multer.diskStorage({ //multers disk storage settings
+    destination: function (req, file, cb) {
+        cb(null, './uploads/')
+    },
+    filename: function (req, file, cb) {
+        var datetimestamp = Date.now();
+        cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length - 1])
+    }
+ });
+ 
+ var upload = multer({ //multer settings
+    storage: storage,
+    fileFilter: function (req, file, callback) { //file filter
+        if (['xls', 'xlsx'].indexOf(file.originalname.split('.')[file.originalname.split('.').length - 1]) === -1) {
+            return callback(new Error('Wrong extension type'));
+        }
+        callback(null, true);
+    }
+ }).single('file');
+
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
    //set headers to allow cross origin request.
@@ -18,7 +38,6 @@ app.use(function (req, res, next) {
    next();
 });
 app.use(bodyParser.urlencoded({ extended: true }));
-
 
 // cron job for every hour 28 min
 cron.schedule(envData.cron1, () => {
@@ -48,33 +67,14 @@ app.get('/', (req, res) => {
    res.send('Welcome to External Rest Service Health Check.');
 });
 
-var storage = multer.diskStorage({ //multers disk storage settings
-   destination: function (req, file, cb) {
-       cb(null, './uploads/')
-   },
-   filename: function (req, file, cb) {
-       var datetimestamp = Date.now();
-       cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length - 1])
-   }
-});
-
-var upload = multer({ //multer settings
-   storage: storage,
-   fileFilter: function (req, file, callback) { //file filter
-       if (['xls', 'xlsx'].indexOf(file.originalname.split('.')[file.originalname.split('.').length - 1]) === -1) {
-           return callback(new Error('Wrong extension type'));
-       }
-       callback(null, true);
-   }
-}).single('file');
-
 /** API path that will upload the files */
 app.post('/upload', (req, res) => {
    console.log('got hit')
    var exceltojson;
    upload(req, res, (err) => {
        if (err) {
-           res.json({ error_code: 1, err_desc: err });
+           // res.json({ error_code: 1, err_desc: err });
+           console.log(err)
            return;
        }
        /** Multer gives us file info in req.file object */
@@ -114,7 +114,7 @@ app.post('/upload', (req, res) => {
 
 });
 
-app.post('/cust-file', (req, res) => {
+app.post('/excel-json', (req, res) => {
    // const id = uuidv4();
    // const message = {
    //   id,
@@ -122,7 +122,13 @@ app.post('/cust-file', (req, res) => {
    // };
    // messages[id] = message;
    // return res.send(message);
-   console.log(req.body);
+   let data = help.getFileData('excelFile');
+   let storeData = {}
+   storeData.launchName = req.body.launchName;
+   storeData.launchDate = req.body.launchDate;
+   storeData.excel_data = JSON.parse(data);
+   help.writeTofile(storeData);
+   console.log("storeData--",storeData)
    res.json({ "good":"ok"});
  });
 
